@@ -1,0 +1,32 @@
+{
+	"name": "redis-server",
+	"version": "1.0.0",
+	"description": "",
+	"main": "dist/index.js",
+	"scripts": {
+		"start": "tsc && node dist/index.js",
+		"lint": "eslint . --ext .ts",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Fuad28/redis-server.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/Fuad28/redis-server/issues"
+	},
+	"homepage": "https://github.com/Fuad28/redis-server#readme",
+	"devDependencies": {
+		"@types/express": "^4.17.1",
+		"@typescript-eslint/eslint-plugin": "^7.0.1",
+		"@typescript-eslint/parser": "^7.0.1",
+		"eslint": "^8.56.0",
+		"typescript": "^5.3.3"
+	},
+	"dependencies": {
+		"express": "^4.17.1"
+	}
+}
