@@ -35,5 +35,5 @@ class RESPManager {
 let cmdArr = ["SET", "my_session", "202313024587774521AF"];
 let serialized = RESPManager.serialize(cmdArr);
 
-console.log(JSON.stringify(serialized));
-console.log(RESPManager.deserialize(serialized));
+// console.log(JSON.stringify(serialized));
+// console.log(RESPManager.deserialize(serialized));
