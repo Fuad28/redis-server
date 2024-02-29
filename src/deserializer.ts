@@ -1,18 +1,6 @@
 export class RESPDeserializer {
-	static readonly types = new Set<string>([
-		"+",
-		"-",
-		":",
-		"$",
-		"*",
-		"(",
-		"_",
-		"~",
-		",",
-		"#",
-		"%",
-	]);
-	static readonly commands = new Set<string>([
+	readonly types = new Set<string>(["+", "-", ":", "$", "*", "(", "_", "~", ",", "#", "%"]);
+	readonly commands = new Set<string>([
 		"GET",
 		"SET",
 		"KEYS",
@@ -35,8 +23,10 @@ export class RESPDeserializer {
 	}
 
 	deserialize(): unknown {
-		RESPDeserializer.validateCommandArr(this.input);
+		this.validateCommandArr();
 
+		console.log("Hereeeeeeeeeee curIndex: ", JSON.stringify(this.curIndex));
+		console.log("Hereeeeeeeeeee curChar: ", JSON.stringify(this.curChar));
 		switch (this.curChar) {
 			case "-":
 				return this.deserializeError();
@@ -77,7 +67,22 @@ export class RESPDeserializer {
 	}
 
 	get curChar(): any {
+		// if (this.input[this.curIndex] == "\r") {
+		// 	this.curIndex += 2;
+		// 	return this.curChar;
+		// }
+
+		// if (this.input[this.curIndex] == "\n") {
+		// 	this.curIndex++;
+		// 	return this.curChar;
+		// }
+
 		return this.input[this.curIndex];
+	}
+
+	get nextChar(): any {
+		// this.curIndex++;
+		return this.input[this.curIndex + 1];
 	}
 
 	deserializeError(): Error {
@@ -105,7 +110,7 @@ export class RESPDeserializer {
 	}
 
 	deserializeBulkString(): string | null {
-		let stringLength = Number(this.input[this.curIndex + 1]);
+		let stringLength = Number(this.nextChar);
 		this.curIndex += 3;
 
 		if (stringLength == -1) {
@@ -114,12 +119,13 @@ export class RESPDeserializer {
 
 		let value = "";
 
-		for (let i = 0; i < stringLength - 1; i++) {
-			value += this.curChar;
+		for (let i = 0; i < stringLength; i++) {
 			this.curIndex++;
+			value += this.curChar;
 		}
 
-		this.curIndex += 2;
+		this.curIndex += 3;
+
 		return value;
 	}
 
@@ -131,7 +137,7 @@ export class RESPDeserializer {
 			value += this.curChar;
 		}
 
-		this.curIndex += 2;
+		this.curIndex += 3;
 		return Number(value);
 	}
 
@@ -153,15 +159,15 @@ export class RESPDeserializer {
 		if (this.curChar == "t") {
 			return true;
 		}
-		this.curIndex += 2;
+		this.curIndex += 3;
 		return false;
 	}
 
 	deserializeArray(): any[] | null {
-		let values = [];
+		let values: any[] = [];
 
-		let arrayLength = Number(this.input[this.curIndex + 1]);
-		this.curIndex += 3;
+		let arrayLength = Number(this.nextChar);
+		this.curIndex += 4;
 
 		if (arrayLength == -1) {
 			return null;
@@ -171,13 +177,12 @@ export class RESPDeserializer {
 			return [];
 		}
 
-		for (let i = 0; i < arrayLength - 1; i++) {
+		for (let i = 0; i < arrayLength; i++) {
 			let element = this.deserialize();
 			values.push(element);
-			this.curIndex++;
 		}
 
-		this.curIndex += 2;
+		this.curIndex += 3;
 
 		return values;
 	}
@@ -185,8 +190,8 @@ export class RESPDeserializer {
 	deserializeSet(): Set<unknown> | null {
 		let values = new Set<unknown>([]);
 
-		let setLength = Number(this.input[this.curIndex + 1]);
-		this.curIndex += 3;
+		let setLength = Number(this.nextChar);
+		this.curIndex += 4;
 
 		if (setLength == -1) {
 			return null;
@@ -196,13 +201,12 @@ export class RESPDeserializer {
 			return values;
 		}
 
-		for (let i = 0; i < setLength - 1; i++) {
+		for (let i = 0; i < setLength; i++) {
 			let element = this.deserialize();
 			values.add(element);
-			this.curIndex++;
 		}
 
-		this.curIndex += 2;
+		this.curIndex += 3;
 
 		return values;
 	}
@@ -210,8 +214,8 @@ export class RESPDeserializer {
 	deserializeMap(): Map<unknown, unknown> | null {
 		let values = new Map<unknown, unknown>([]);
 
-		let mapLength = Number(this.input[this.curIndex + 1]);
-		this.curIndex += 3;
+		let mapLength = Number(this.nextChar);
+		this.curIndex += 4;
 
 		if (mapLength == -1) {
 			return null;
@@ -221,36 +225,36 @@ export class RESPDeserializer {
 			return values;
 		}
 
-		for (let i = 0; i < mapLength - 1; i++) {
+		for (let i = 0; i < mapLength; i++) {
 			let key = this.deserialize();
 			let value = this.deserialize();
 
 			if (key && value) {
 				values.set(key, value);
 			}
-
-			this.curIndex++;
 		}
 
-		this.curIndex += 2;
+		this.curIndex += 3;
 
 		return values;
 	}
 
-	static validateCommandArr(input: string): void | Error {
+	validateCommandArr(): void | Error {
 		// input arrays have to be arrays of bulk strings
 		// TODO: ensure all numbers are actually numbers
 
 		const CRLF = "\r\n";
-		let inputsArr = input.split(CRLF);
+		let inputsArr = this.input.split(CRLF);
 
 		if (
-			!input.endsWith(CRLF) ||
+			!this.input.endsWith(CRLF) ||
 			!inputsArr[0].startsWith("*") ||
 			!inputsArr[1].startsWith("$") ||
 			inputsArr[2] in this.commands
 		) {
 			throw new Error("Invalid command.");
 		}
+
+		this.command = inputsArr[2];
 	}
 }
