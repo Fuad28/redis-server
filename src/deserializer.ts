@@ -1,5 +1,17 @@
 export class RESPDeserializer {
-	static readonly types = new Set<string>(["+", "-", ":", "$", "*"]);
+	static readonly types = new Set<string>([
+		"+",
+		"-",
+		":",
+		"$",
+		"*",
+		"(",
+		"_",
+		"~",
+		",",
+		"#",
+		"%",
+	]);
 	static readonly commands = new Set<string>([
 		"GET",
 		"SET",
@@ -15,6 +27,7 @@ export class RESPDeserializer {
 	readonly CRLF = "\r\n";
 	private curIndex: number;
 	private inputLength: number;
+	private command = "GET";
 
 	constructor(public input: string) {
 		this.curIndex = 0;
@@ -57,6 +70,9 @@ export class RESPDeserializer {
 
 			case "_":
 				return this.deserializeNull();
+
+			default:
+				throw new Error("Invalid data type");
 		}
 	}
 
@@ -223,7 +239,7 @@ export class RESPDeserializer {
 
 	static validateCommandArr(input: string): void | Error {
 		// input arrays have to be arrays of bulk strings
-		// ensure all numbers are actually numbers
+		// TODO: ensure all numbers are actually numbers
 
 		const CRLF = "\r\n";
 		let inputsArr = input.split(CRLF);
