@@ -1,4 +1,4 @@
-class RESPSerializer {
+export class RESPSerializer {
 	readonly CRLF = "\r\n";
 
 	serialize(input: unknown, errorPrefix?: string): string | Error {

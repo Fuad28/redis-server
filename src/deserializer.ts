@@ -1,4 +1,4 @@
-class RESPDeserializer {
+export class RESPDeserializer {
 	static readonly types = new Set<string>(["+", "-", ":", "$", "*"]);
 	static readonly commands = new Set<string>([
 		"GET",
