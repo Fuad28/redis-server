@@ -37,11 +37,11 @@ export class RESPSerializer {
 		throw new Error("Invalid input type");
 	}
 
-	serializeString(input: string): string {
+	serializeString(input: string, isBulk: boolean = true): string {
 		const inputsArr = input.split(this.CRLF);
 		let serializedInput = "";
 
-		if (inputsArr.length == 1) {
+		if (inputsArr.length == 1 && !isBulk) {
 			serializedInput = "+" + input + this.CRLF;
 		} else {
 			inputsArr.forEach((element) => {
