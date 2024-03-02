@@ -1,7 +1,7 @@
 export class RESPSerializer {
 	readonly CRLF = "\r\n";
 
-	serialize(input: unknown, errorPrefix?: string): string | Error {
+	serialize(input: unknown, errorPrefix?: string): string {
 		if (errorPrefix) {
 			return "-" + errorPrefix.toLocaleUpperCase() + this.CRLF + input + this.CRLF;
 		}
@@ -34,7 +34,7 @@ export class RESPSerializer {
 			return this.serializeMap(input);
 		}
 
-		throw new Error("Invalid input type");
+		return "-WRONGTYPE input is unserializable" + this.CRLF;
 	}
 
 	serializeString(input: string, isBulk: boolean = true): string {
