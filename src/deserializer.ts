@@ -15,18 +15,25 @@ export class RESPDeserializer {
 	readonly CRLF = "\r\n";
 	private curIndex: number;
 	private inputLength: number;
-	private command = "GET";
 
 	constructor(public input: string) {
 		this.curIndex = 0;
 		this.inputLength = input.length;
 	}
 
-	deserialize(): unknown {
+	deserializeCommand(): [string, unknown[]] {
 		this.validateCommandArr();
 
-		console.log("Hereeeeeeeeeee curIndex: ", JSON.stringify(this.curIndex));
-		console.log("Hereeeeeeeeeee curChar: ", JSON.stringify(this.curChar));
+		let commandArray = this.deserializeArray();
+
+		if (!commandArray || commandArray.length === 0) {
+			return ["", []];
+		}
+
+		return [commandArray[0] as string, commandArray.slice(1)];
+	}
+
+	deserialize(): unknown {
 		switch (this.curChar) {
 			case "-":
 				return this.deserializeError();
@@ -66,22 +73,11 @@ export class RESPDeserializer {
 		}
 	}
 
-	get curChar(): any {
-		// if (this.input[this.curIndex] == "\r") {
-		// 	this.curIndex += 2;
-		// 	return this.curChar;
-		// }
-
-		// if (this.input[this.curIndex] == "\n") {
-		// 	this.curIndex++;
-		// 	return this.curChar;
-		// }
-
+	get curChar(): string {
 		return this.input[this.curIndex];
 	}
 
-	get nextChar(): any {
-		// this.curIndex++;
+	get nextChar(): string {
 		return this.input[this.curIndex + 1];
 	}
 
@@ -163,8 +159,8 @@ export class RESPDeserializer {
 		return false;
 	}
 
-	deserializeArray(): any[] | null {
-		let values: any[] = [];
+	deserializeArray(): unknown[] | null {
+		let values: unknown[] = [];
 
 		let arrayLength = Number(this.nextChar);
 		this.curIndex += 4;
@@ -254,7 +250,5 @@ export class RESPDeserializer {
 		) {
 			throw new Error("Invalid command.");
 		}
-
-		this.command = inputsArr[2];
 	}
 }
