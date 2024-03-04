@@ -1,22 +1,29 @@
 import { createServer } from "net";
 import { RESPSerializer } from "./serializer";
 import { RESPDeserializer } from "./deserializer";
-class Redis {
-	private readonly store: Map<unknown, unknown>;
+import { FileData, CustomErrorType } from "./types";
+import { FileManager } from "./utils";
+
+export class Redis {
+	private store!: FileData;
+	private readonly dbPath = "db.json";
 
 	constructor(public port: number = 6379) {
 		this.port = port;
-		this.store = new Map<unknown, unknown>();
 	}
 
 	start() {
-		const server = createServer((socket) => {
+		const server = createServer(async (socket) => {
 			console.log("client connected");
+
+			await this.loadStoreFromDisk();
 
 			socket.on("data", (data) => {
 				console.log("Received: ", data.toString());
-				let response = this.handleMessage(data.toString());
-				socket.write(response);
+
+				this.handleMessage(data.toString()).then((value) => {
+					socket.write(value);
+				});
 			});
 
 			socket.on("end", () => {
@@ -37,7 +44,7 @@ class Redis {
 		});
 	}
 
-	handleMessage(message: string): string {
+	async handleMessage(message: string): Promise<string> {
 		let [command, args] = new RESPDeserializer(message).deserializeCommand();
 		let response: unknown;
 		let errorPrefix: string | null;
@@ -71,7 +78,7 @@ class Redis {
 				[response, errorPrefix] = this.handleDecr(args);
 
 			case "SAVE":
-				[response, errorPrefix] = this.handleSave(args);
+				[response, errorPrefix] = this.handleSave();
 
 			default:
 				errorPrefix = "ERR";
@@ -144,13 +151,33 @@ class Redis {
 		return [`key: ${key} not found`, "KEYERROR"];
 	}
 
-	handleSave(args: unknown[]): [unknown, string | null] {
-		// save to JSON
-		// Also implement loading from json during start up
-		return [this.store.set(args[0], args[1]), null];
+	handleSave(): [string, string | null] {
+		this.saveStoreToDisk();
+
+		return ["OK", null];
+	}
+
+	async saveStoreToDisk(): Promise<void> {
+		try {
+			await FileManager.writeToFile(this.dbPath, this.store);
+		} catch (err) {
+			const error = err as CustomErrorType;
+
+			console.warn("Error saving to disk: ", error.message);
+		}
+	}
+
+	async loadStoreFromDisk(): Promise<void> {
+		try {
+			this.store = await FileManager.readFile(this.dbPath);
+		} catch (err) {
+			const error = err as CustomErrorType;
+
+			console.warn("Error loading from disk: ", error.message);
+		}
 	}
 }
 
-let redis = new Redis(8124);
+// let redis = new Redis(8124);
 
-redis.start();
+// redis.start();
