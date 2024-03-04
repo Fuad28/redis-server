@@ -1,9 +1,9 @@
-import { IRESPSerializer } from "./types";
+import { IRESPSerializer, AllowedType } from "./types";
 
 export class RESPSerializer implements IRESPSerializer {
 	readonly CRLF = "\r\n";
 
-	serialize(input: unknown, errorPrefix?: string): string {
+	serialize(input: AllowedType, errorPrefix?: string): string {
 		if (errorPrefix) {
 			return "-" + errorPrefix.toLocaleUpperCase() + this.CRLF + input + this.CRLF;
 		}
@@ -74,7 +74,7 @@ export class RESPSerializer implements IRESPSerializer {
 		return input == true ? "#t\r\n" : "#f\r\n";
 	}
 
-	serializeArray(input: unknown[]): string {
+	serializeArray(input: AllowedType[]): string {
 		let serializedInput = `*${input.length}${this.CRLF}`;
 
 		input.forEach((element) => {
@@ -84,7 +84,7 @@ export class RESPSerializer implements IRESPSerializer {
 		return serializedInput;
 	}
 
-	serializeSet(input: Set<unknown>): string {
+	serializeSet(input: Set<AllowedType>): string {
 		let serializedInput = `~${input.size}${this.CRLF}`;
 
 		input.forEach((element) => {
@@ -94,7 +94,7 @@ export class RESPSerializer implements IRESPSerializer {
 		return serializedInput;
 	}
 
-	serializeMap(input: Map<unknown, unknown>): string {
+	serializeMap(input: Map<AllowedType, AllowedType>): string {
 		let serializedInput = `%${input.size}${this.CRLF}`;
 
 		input.forEach((key, value) => {

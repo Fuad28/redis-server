@@ -1,4 +1,4 @@
-import { IRESPDeserializer } from "./types";
+import { IRESPDeserializer, AllowedType } from "./types";
 export class RESPDeserializer implements IRESPDeserializer {
 	readonly types = new Set<string>(["+", "-", ":", "$", "*", "(", "_", "~", ",", "#", "%"]);
 	readonly commands = new Set<string>([
@@ -22,7 +22,7 @@ export class RESPDeserializer implements IRESPDeserializer {
 		this.inputLength = input.length;
 	}
 
-	deserializeCommand(): [string, unknown[]] {
+	deserializeCommand(): [string, AllowedType[]] {
 		this.validateCommandArr();
 
 		let commandArray = this.deserializeArray();
@@ -34,7 +34,7 @@ export class RESPDeserializer implements IRESPDeserializer {
 		return [commandArray[0] as string, commandArray.slice(1)];
 	}
 
-	deserialize(): unknown {
+	deserialize(): AllowedType {
 		switch (this.curChar) {
 			case "-":
 				return this.deserializeError();
@@ -160,8 +160,8 @@ export class RESPDeserializer implements IRESPDeserializer {
 		return false;
 	}
 
-	deserializeArray(): unknown[] | null {
-		let values: unknown[] = [];
+	deserializeArray(): AllowedType[] | null {
+		let values: AllowedType[] = [];
 
 		let arrayLength = Number(this.nextChar);
 		this.curIndex += 4;
@@ -184,8 +184,8 @@ export class RESPDeserializer implements IRESPDeserializer {
 		return values;
 	}
 
-	deserializeSet(): Set<unknown> | null {
-		let values = new Set<unknown>([]);
+	deserializeSet(): Set<AllowedType> | null {
+		let values = new Set<AllowedType>([]);
 
 		let setLength = Number(this.nextChar);
 		this.curIndex += 4;
@@ -208,8 +208,8 @@ export class RESPDeserializer implements IRESPDeserializer {
 		return values;
 	}
 
-	deserializeMap(): Map<unknown, unknown> | null {
-		let values = new Map<unknown, unknown>([]);
+	deserializeMap(): Map<AllowedType, AllowedType> | null {
+		let values = new Map<AllowedType, AllowedType>([]);
 
 		let mapLength = Number(this.nextChar);
 		this.curIndex += 4;

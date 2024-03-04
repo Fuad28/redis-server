@@ -1,7 +1,7 @@
 import { createServer } from "net";
 import { RESPSerializer } from "./serializer";
 import { RESPDeserializer } from "./deserializer";
-import { FileData, CustomErrorType, IRedis } from "./types";
+import { FileData, CustomErrorType, AllowedType, IRedis } from "./types";
 import { FileManager } from "./utils";
 
 export class Redis implements IRedis {
@@ -88,8 +88,8 @@ export class Redis implements IRedis {
 		return new RESPSerializer().serialize(response, errorPrefix);
 	}
 
-	handleGet(key: unknown): [unknown, string | null] {
-		let value = this.store.get(key);
+	handleGet(key: AllowedType): [AllowedType, string | null] {
+		let value = this.store.get(key) as AllowedType;
 
 		if (value === undefined) {
 			return [`key: ${key} not found`, "KEYERROR"];
@@ -97,7 +97,7 @@ export class Redis implements IRedis {
 		return [value, null];
 	}
 
-	handleSet(args: unknown[]): [string, string | null] {
+	handleSet(args: AllowedType[]): [string, string | null] {
 		if (args.length < 2) {
 			return ["wrong number of arguments for 'set' command", "ERR"];
 		}
@@ -107,15 +107,15 @@ export class Redis implements IRedis {
 		return ["OK", null];
 	}
 
-	handleKeys(): [IterableIterator<unknown>, null] {
-		return [this.store.keys(), null];
+	handleKeys(): [IterableIterator<AllowedType>, null] {
+		return [this.store.keys() as IterableIterator<AllowedType>, null];
 	}
 
 	handleLen(): [number, null] {
 		return [this.store.size, null];
 	}
 
-	handleExists(key: unknown): [boolean, null] {
+	handleExists(key: AllowedType): [boolean, null] {
 		return [this.store.has(key), null];
 	}
 
@@ -123,17 +123,17 @@ export class Redis implements IRedis {
 		return ["PONG", null];
 	}
 
-	handleEcho(args: unknown[]): [string, null] {
+	handleEcho(args: AllowedType[]): [string, null] {
 		return [args.join(" "), null];
 	}
 
-	handleDel(key: unknown): [number, null] {
+	handleDel(key: AllowedType): [number, null] {
 		let isDeleted = this.store.delete(key);
 
 		return isDeleted ? [1, null] : [0, null];
 	}
 
-	handleDecr(key: unknown): [number | string, string | null] {
+	handleDecr(key: AllowedType): [number | string, string | null] {
 		let [keyExists, _] = this.handleExists(key);
 
 		if (keyExists) {
