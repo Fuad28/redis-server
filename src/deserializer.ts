@@ -1,4 +1,5 @@
-export class RESPDeserializer {
+import { IRESPDeserializer } from "./types";
+export class RESPDeserializer implements IRESPDeserializer {
 	readonly types = new Set<string>(["+", "-", ":", "$", "*", "(", "_", "~", ",", "#", "%"]);
 	readonly commands = new Set<string>([
 		"GET",
