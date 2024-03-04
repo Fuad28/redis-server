@@ -1,12 +1,12 @@
 import { createServer } from "net";
 import { RESPSerializer } from "./serializer";
 import { RESPDeserializer } from "./deserializer";
-import { FileData, CustomErrorType } from "./types";
+import { FileData, CustomErrorType, IRedis } from "./types";
 import { FileManager } from "./utils";
 
-export class Redis {
-	private store!: FileData;
-	private readonly dbPath = "db.json";
+export class Redis implements IRedis {
+	readonly store: FileData = new Map();
+	readonly dbPath = "db.json";
 
 	constructor(public port: number = 6379) {
 		this.port = port;
@@ -97,7 +97,7 @@ export class Redis {
 		return [value, null];
 	}
 
-	handleSet(args: unknown[]): [unknown, string | null] {
+	handleSet(args: unknown[]): [string, string | null] {
 		if (args.length < 2) {
 			return ["wrong number of arguments for 'set' command", "ERR"];
 		}
@@ -107,27 +107,27 @@ export class Redis {
 		return ["OK", null];
 	}
 
-	handleKeys(): [IterableIterator<unknown>, string | null] {
+	handleKeys(): [IterableIterator<unknown>, null] {
 		return [this.store.keys(), null];
 	}
 
-	handleLen(): [number, string | null] {
+	handleLen(): [number, null] {
 		return [this.store.size, null];
 	}
 
-	handleExists(key: unknown): [boolean, string | null] {
+	handleExists(key: unknown): [boolean, null] {
 		return [this.store.has(key), null];
 	}
 
-	handlePing(): [string, string | null] {
+	handlePing(): [string, null] {
 		return ["PONG", null];
 	}
 
-	handleEcho(args: unknown[]): [string, string | null] {
+	handleEcho(args: unknown[]): [string, null] {
 		return [args.join(" "), null];
 	}
 
-	handleDel(key: unknown): [number, string | null] {
+	handleDel(key: unknown): [number, null] {
 		let isDeleted = this.store.delete(key);
 
 		return isDeleted ? [1, null] : [0, null];
@@ -151,7 +151,7 @@ export class Redis {
 		return [`key: ${key} not found`, "KEYERROR"];
 	}
 
-	handleSave(): [string, string | null] {
+	handleSave(): [string, null] {
 		this.saveStoreToDisk();
 
 		return ["OK", null];
@@ -169,7 +169,11 @@ export class Redis {
 
 	async loadStoreFromDisk(): Promise<void> {
 		try {
-			this.store = await FileManager.readFile(this.dbPath);
+			let data = await FileManager.readFile(this.dbPath);
+
+			for (let entry of data.entries()) {
+				this.store.set(entry[0], entry[1]);
+			}
 		} catch (err) {
 			const error = err as CustomErrorType;
 
@@ -177,7 +181,3 @@ export class Redis {
 		}
 	}
 }
-
-// let redis = new Redis(8124);
-
-// redis.start();
