@@ -12,6 +12,7 @@ export class RESPDeserializer implements IRESPDeserializer {
 		"DEL",
 		"DECR",
 		"SAVE",
+		"COMMAND",
 	]);
 	readonly CRLF = "\r\n";
 	private curIndex: number;
@@ -247,9 +248,9 @@ export class RESPDeserializer implements IRESPDeserializer {
 			!this.input.endsWith(CRLF) ||
 			!inputsArr[0].startsWith("*") ||
 			!inputsArr[1].startsWith("$") ||
-			inputsArr[2] in this.commands
+			!this.commands.has(inputsArr[2].toLocaleUpperCase())
 		) {
-			throw new Error("Invalid command.");
+			throw new Error(`Invalid command: ${inputsArr[2]}`);
 		}
 	}
 }
