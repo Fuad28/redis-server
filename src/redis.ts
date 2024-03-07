@@ -16,14 +16,18 @@ export class Redis implements IRedis {
 		const server = createServer(async (socket) => {
 			console.log("client connected");
 
-			await this.loadStoreFromDisk();
+			// await this.loadStoreFromDisk();
 
 			socket.on("data", (data) => {
-				console.log("Received: ", data.toString());
+				console.log("Received: ", JSON.stringify(data.toString()));
 
-				this.handleMessage(data.toString()).then((value) => {
-					socket.write(value);
-				});
+				this.handleMessage(data.toString())
+					.then((value) => {
+						socket.write(value);
+					})
+					.catch((error) => {
+						socket.write(error.message);
+					});
 			});
 
 			socket.on("end", () => {
@@ -45,44 +49,66 @@ export class Redis implements IRedis {
 	}
 
 	async handleMessage(message: string): Promise<string> {
-		let [command, args] = new RESPDeserializer(message).deserializeCommand();
-		let response: unknown;
+		let response!: AllowedType;
 		let errorPrefix: string | null;
 
-		switch (command.toUpperCase()) {
-			case "GET":
-				[response, errorPrefix] = this.handleGet(args[0]);
+		try {
+			let [command, args] = new RESPDeserializer(message).deserializeCommand();
 
-			case "SET":
-				[response, errorPrefix] = this.handleSet(args);
+			switch (command.toUpperCase()) {
+				case "GET":
+					[response, errorPrefix] = this.handleGet(args[0]);
+					break;
 
-			case "KEYS":
-				[response, errorPrefix] = this.handleKeys();
+				case "SET":
+					[response, errorPrefix] = this.handleSet(args);
+					break;
 
-			case "LEN":
-				[response, errorPrefix] = this.handleLen();
+				case "KEYS":
+					[response, errorPrefix] = this.handleKeys();
+					break;
 
-			case "EXISTS":
-				[response, errorPrefix] = this.handleExists(args[0]);
+				case "LEN":
+					[response, errorPrefix] = this.handleLen();
+					break;
 
-			case "PING":
-				[response, errorPrefix] = this.handlePing();
+				case "EXISTS":
+					[response, errorPrefix] = this.handleExists(args[0]);
+					break;
 
-			case "ECHO":
-				[response, errorPrefix] = this.handleEcho(args);
+				case "PING":
+					[response, errorPrefix] = this.handlePing();
+					break;
 
-			case "DEL":
-				[response, errorPrefix] = this.handleDel(args[0]);
+				case "ECHO":
+					[response, errorPrefix] = this.handleEcho(args);
+					break;
 
-			case "DECR":
-				[response, errorPrefix] = this.handleDecr(args);
+				case "DEL":
+					[response, errorPrefix] = this.handleDel(args[0]);
+					break;
 
-			case "SAVE":
-				[response, errorPrefix] = this.handleSave();
+				case "DECR":
+					[response, errorPrefix] = this.handleDecr(args);
+					break;
 
-			default:
-				errorPrefix = "ERR";
-				response = "Invalid command";
+				case "SAVE":
+					[response, errorPrefix] = this.handleSave();
+					break;
+
+				case "COMMAND":
+					[response, errorPrefix] = this.handleCommand();
+					break;
+
+				default:
+					errorPrefix = "ERR";
+					response = "Invalid command";
+					break;
+			}
+		} catch (err) {
+			const error = err as CustomErrorType;
+			errorPrefix = "ERR";
+			response = error.message;
 		}
 
 		return new RESPSerializer().serialize(response, errorPrefix);
@@ -108,7 +134,7 @@ export class Redis implements IRedis {
 	}
 
 	handleKeys(): [IterableIterator<AllowedType>, null] {
-		return [this.store.keys() as IterableIterator<AllowedType>, null];
+		return [this.store.keys(), null];
 	}
 
 	handleLen(): [number, null] {
@@ -151,8 +177,12 @@ export class Redis implements IRedis {
 		return [`key: ${key} not found`, "KEYERROR"];
 	}
 
+	handleCommand(): [string, null] {
+		return ["OK", null];
+	}
+
 	handleSave(): [string, null] {
-		this.saveStoreToDisk();
+		// this.saveStoreToDisk();
 
 		return ["OK", null];
 	}
