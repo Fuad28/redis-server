@@ -16,7 +16,7 @@ export class Redis implements IRedis {
 		const server = createServer(async (socket) => {
 			console.log("client connected");
 
-			// await this.loadStoreFromDisk();
+			await this.loadStoreFromDisk();
 
 			socket.on("data", (data) => {
 				console.log("Received: ", JSON.stringify(data.toString()));
@@ -181,20 +181,27 @@ export class Redis implements IRedis {
 		return ["OK", null];
 	}
 
-	handleSave(): [string, null] {
-		// this.saveStoreToDisk();
+	handleSave(): [string, string | null] {
+		let response = "OK";
+		let errorPrefix = null;
 
-		return ["OK", null];
+		this.saveStoreToDisk()
+			.then((value) => {
+				[response, errorPrefix] = ["OK", null];
+			})
+			.catch((error) => {
+				const err = error as CustomErrorType;
+				[response, errorPrefix] = [err.message, "ERR"];
+
+				console.warn("Error saving to disk: ", error.message);
+			});
+
+		return [response, errorPrefix];
 	}
 
 	async saveStoreToDisk(): Promise<void> {
-		try {
-			await FileManager.writeToFile(this.dbPath, this.store);
-		} catch (err) {
-			const error = err as CustomErrorType;
-
-			console.warn("Error saving to disk: ", error.message);
-		}
+		const storeObject = Object.fromEntries(this.store.entries());
+		await FileManager.writeToFile(this.dbPath, storeObject);
 	}
 
 	async loadStoreFromDisk(): Promise<void> {
