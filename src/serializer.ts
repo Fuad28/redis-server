@@ -3,7 +3,7 @@ import { IRESPSerializer, AllowedType } from "./types";
 export class RESPSerializer implements IRESPSerializer {
 	readonly CRLF = "\r\n";
 
-	serialize(input: AllowedType, errorPrefix?: string): string {
+	serialize(input: AllowedType, errorPrefix: string | null = null): string {
 		if (errorPrefix) {
 			return "-" + errorPrefix.toLocaleUpperCase() + this.CRLF + input + this.CRLF;
 		}
