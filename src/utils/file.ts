@@ -4,8 +4,6 @@ import fs from "fs";
 import { CustomErrorType, FileData } from "../types";
 import * as path from "path";
 
-const currentDir = __dirname;
-
 export class FileManager {
 	static async writeToFile(fileName: string, data: FileData): Promise<void | Error> {
 		try {
@@ -23,17 +21,18 @@ export class FileManager {
 		}
 		try {
 			await fsp.access(directoryPath, fs.constants.F_OK);
-			let file = await fsp.readFile(filePath, "utf-8");
-			let a = JSON.parse(file) as FileData;
-			return a;
+			let jsonString = await fsp.readFile(filePath, "utf-8");
+			const jsonObject = JSON.parse(jsonString);
+
+			return new Map<string, string>(Object.entries(jsonObject));
 		} catch (err) {
 			const error = err as CustomErrorType;
 
 			if (error.code == "ENOENT") {
 				fsp.mkdir(directoryPath, { recursive: true });
-				// const defaultJsonData = JSON.stringify({ data: [] });
-				// await fsp.writeFile(filePath, defaultJsonData);
-				return FileManager.readFile(directoryPath, filePath);
+				await fsp.writeFile(filePath, JSON.stringify({}));
+
+				return FileManager.readFile(filePath, directoryPath);
 			} else {
 				throw new Error(error.message);
 			}
@@ -41,9 +40,10 @@ export class FileManager {
 	}
 
 	static async getFilePath(fileName: string): Promise<[string, string]> {
-		const directoryPath: string = path.join(currentDir, "data");
-		const filePath: string = path.join(directoryPath, fileName);
+		const rootDirectory: string = path.resolve(__dirname, "../");
 
-		return [directoryPath, filePath];
+		const filePath: string = path.join(rootDirectory, fileName);
+
+		return [rootDirectory, filePath];
 	}
 }
