@@ -238,19 +238,19 @@ export class RESPDeserializer implements IRESPDeserializer {
 	}
 
 	validateCommandArr(): void | Error {
-		// input arrays have to be arrays of bulk strings
-		// TODO: ensure all numbers are actually numbers
-
 		const CRLF = "\r\n";
 		let inputsArr = this.input.split(CRLF);
 
-		if (
-			!this.input.endsWith(CRLF) ||
-			!inputsArr[0].startsWith("*") ||
-			!inputsArr[1].startsWith("$") ||
-			!this.commands.has(inputsArr[2].toLocaleUpperCase())
-		) {
-			throw new Error(`Invalid command: ${inputsArr[2]}`);
+		if (!inputsArr[0].startsWith("*") || !inputsArr[1].startsWith("$")) {
+			throw new Error("Invalid command: command should be an array of bulk strings.");
+		}
+
+		if (!this.input.endsWith(CRLF)) {
+			throw new Error("Invalid command: ${CRLF} missing at the end of command.");
+		}
+
+		if (!this.commands.has(inputsArr[2].toUpperCase())) {
+			throw new Error("Invalid command: ${inputsArr[2]} not a valid command.");
 		}
 	}
 }
