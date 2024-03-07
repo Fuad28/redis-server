@@ -6,6 +6,7 @@ export type AllowedType =
 	| Map<AllowedType, AllowedType>
 	| Set<AllowedType>
 	| Array<AllowedType>
+	| IterableIterator<AllowedType>
 	| Error;
 
 export type CustomErrorType = {
