@@ -1,4 +1,6 @@
-import * as fs from "node:fs/promises";
+import * as fsp from "node:fs/promises";
+import fs from "fs";
+
 import { CustomErrorType, FileData } from "../types";
 import * as path from "path";
 
@@ -9,7 +11,7 @@ export class FileManager {
 		try {
 			const [_, filePath] = await FileManager.getFilePath(fileName);
 			let fileDataString = JSON.stringify(data);
-			await fs.writeFile(filePath, fileDataString);
+			await fsp.writeFile(filePath, fileDataString);
 		} catch (err) {
 			throw err as CustomErrorType;
 		}
@@ -20,17 +22,17 @@ export class FileManager {
 			[directoryPath, filePath] = await FileManager.getFilePath(filePath);
 		}
 		try {
-			await fs.access(directoryPath, fs.constants.F_OK);
-			let file = await fs.readFile(filePath, "utf-8");
+			await fsp.access(directoryPath, fs.constants.F_OK);
+			let file = await fsp.readFile(filePath, "utf-8");
 			let a = JSON.parse(file) as FileData;
 			return a;
 		} catch (err) {
 			const error = err as CustomErrorType;
 
 			if (error.code == "ENOENT") {
-				fs.mkdir(directoryPath, { recursive: true });
+				fsp.mkdir(directoryPath, { recursive: true });
 				// const defaultJsonData = JSON.stringify({ data: [] });
-				// await fs.writeFile(filePath, defaultJsonData);
+				// await fsp.writeFile(filePath, defaultJsonData);
 				return FileManager.readFile(directoryPath, filePath);
 			} else {
 				throw new Error(error.message);
