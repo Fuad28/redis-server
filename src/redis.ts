@@ -181,20 +181,20 @@ export class Redis implements IRedis {
 	}
 
 	handleDecr(key: AllowedType): [number | string, string | null] {
-		if (this.store.has(key)) {
-			let value = this.store.get(key);
+		let value = this.store.get(key);
 
-			if (typeof value === "number") {
-				value--;
-				this.store.set(key, value);
-
-				return [value as number, null];
-			}
-
-			return [`Invalid operation on type: ${typeof value}`, "WRONGTYPE"];
+		if (value === undefined) {
+			return [`key: ${key} not found`, "KEYERROR"];
 		}
 
-		return [`key: ${key} not found`, "KEYERROR"];
+		if (typeof value === "number") {
+			value--;
+			this.store.set(key, value);
+
+			return [value as number, null];
+		}
+
+		return [`Invalid operation on type: ${typeof value}`, "WRONGTYPE"];
 	}
 
 	handleCommand(): [string, null] {
