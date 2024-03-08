@@ -5,7 +5,7 @@ export class RESPSerializer implements IRESPSerializer {
 
 	serialize(input: AllowedType, errorPrefix: string | null = null): string {
 		if (errorPrefix) {
-			return "-" + errorPrefix.toLocaleUpperCase() + this.CRLF + input + this.CRLF;
+			return "-" + errorPrefix.toLocaleUpperCase() + " " + input + this.CRLF;
 		}
 
 		if (typeof input == "string") {
