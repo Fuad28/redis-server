@@ -26,7 +26,7 @@ export interface IRedis {
 	handleMessage(message: string): Promise<string>;
 	handleGet(key: AllowedType): [AllowedType, string | null];
 	handleSet(args: AllowedType[]): [string, string | null];
-	handleKeys(): [IterableIterator<AllowedType>, null];
+	handleKeys(): [AllowedType, null];
 	handleLen(): [number, null];
 	handleExists(key: AllowedType): [boolean, null];
 	handlePing(): [string, null];

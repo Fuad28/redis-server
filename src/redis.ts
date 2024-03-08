@@ -95,7 +95,7 @@ export class Redis implements IRedis {
 					break;
 
 				case "DECR":
-					[response, errorPrefix] = this.handleDecr(args);
+					[response, errorPrefix] = this.handleDecr(args[0]);
 					break;
 
 				case "SAVE":
@@ -117,6 +117,7 @@ export class Redis implements IRedis {
 			response = error.message;
 		}
 
+		console.log("SERIALIZER: ", new RESPSerializer().serialize(response, errorPrefix));
 		return new RESPSerializer().serialize(response, errorPrefix);
 	}
 
@@ -134,13 +135,19 @@ export class Redis implements IRedis {
 			return ["wrong number of arguments for 'set' command", "ERR"];
 		}
 
-		this.store.set(args[0], args[1]);
+		let argNum = Number(args[1]);
+
+		if (Number.isNaN(argNum)) {
+			this.store.set(args[0], args[1]);
+		} else {
+			this.store.set(args[0], argNum);
+		}
 
 		return ["OK", null];
 	}
 
-	handleKeys(): [IterableIterator<AllowedType>, null] {
-		return [this.store.keys(), null];
+	handleKeys(): [AllowedType, null] {
+		return [Array.from(this.store.keys()), null];
 	}
 
 	handleLen(): [number, null] {
@@ -166,15 +173,14 @@ export class Redis implements IRedis {
 	}
 
 	handleDecr(key: AllowedType): [number | string, string | null] {
-		let [keyExists, _] = this.handleExists(key);
-
-		if (keyExists) {
+		if (this.store.has(key)) {
 			let value = this.store.get(key);
 
 			if (typeof value === "number") {
-				this.store.set(key, value--);
+				value--;
+				this.store.set(key, value);
 
-				return [this.store.get(key) as number, null];
+				return [value as number, null];
 			}
 
 			return [`Invalid operation on type: ${typeof value}`, "WRONGTYPE"];
