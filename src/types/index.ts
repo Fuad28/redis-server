@@ -35,6 +35,8 @@ export interface IRedis {
 	handleDecr(key: AllowedType): [number | string, string | null];
 	handleSADD(args: AllowedType[]): [number | string, string | null];
 	handleSMEMBERS(key: AllowedType): [AllowedType, string | null];
+	handleLPush(args: AllowedType[]): [number | string, string | null];
+	handleRPush(args: AllowedType[]): [number | string, string | null];
 	handleSave(): [string, null];
 	saveStoreToDisk(): Promise<void>;
 	loadStoreFromDisk(): Promise<void>;

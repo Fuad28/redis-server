@@ -114,6 +114,14 @@ export class Redis implements IRedis {
 					[response, errorPrefix] = this.handleSMEMBERS(args[0]);
 					break;
 
+				case "LPUSH":
+					[response, errorPrefix] = this.handleLPush(args);
+					break;
+
+				case "RPUSH":
+					[response, errorPrefix] = this.handleRPush(args);
+					break;
+
 				default:
 					errorPrefix = "ERR";
 					response = "Invalid command";
@@ -238,6 +246,56 @@ export class Redis implements IRedis {
 		} else {
 			return [`Invalid operation on type: ${typeof value}`, "WRONGTYPE"];
 		}
+	}
+
+	handleLPush(args: AllowedType[]): [number | string, string | null] {
+		if (args.length < 2) {
+			return ["wrong number of arguments for 'LPUSH' command", "ERR"];
+		}
+
+		let key = args[0];
+
+		let value = this.store.get(key);
+
+		if (value === undefined) {
+			this.store.set(key, new Array(args[1]));
+
+			return [1, null];
+		}
+
+		if (value instanceof Array) {
+			value = [...args.slice(1), ...value];
+			this.store.set(key, value);
+
+			return [1, null];
+		}
+
+		return [`Invalid operation on type: ${typeof value}`, "WRONGTYPE"];
+	}
+
+	handleRPush(args: AllowedType[]): [number | string, string | null] {
+		if (args.length < 2) {
+			return ["wrong number of arguments for 'RPUSH' command", "ERR"];
+		}
+
+		let key = args[0];
+
+		let value = this.store.get(key);
+
+		if (value === undefined) {
+			this.store.set(key, new Array(args[1]));
+
+			return [1, null];
+		}
+
+		if (value instanceof Array) {
+			value = [...value, ...args.slice(1)];
+			this.store.set(key, value);
+
+			return [1, null];
+		}
+
+		return [`Invalid operation on type: ${typeof value}`, "WRONGTYPE"];
 	}
 
 	handleSave(): [string, null] {
