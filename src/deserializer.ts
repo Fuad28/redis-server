@@ -13,6 +13,8 @@ export class RESPDeserializer implements IRESPDeserializer {
 		"DECR",
 		"SAVE",
 		"COMMAND",
+		"SADD",
+		"SMEMBERS",
 	]);
 	readonly CRLF = "\r\n";
 	private curIndex: number;

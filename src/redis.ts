@@ -106,6 +106,14 @@ export class Redis implements IRedis {
 					[response, errorPrefix] = this.handleCommand();
 					break;
 
+				case "SADD":
+					[response, errorPrefix] = this.handleSADD(args);
+					break;
+
+				case "SMEMBERS":
+					[response, errorPrefix] = this.handleSMEMBERS(args[0]);
+					break;
+
 				default:
 					errorPrefix = "ERR";
 					response = "Invalid command";
@@ -122,7 +130,7 @@ export class Redis implements IRedis {
 	}
 
 	handleGet(key: AllowedType): [AllowedType, string | null] {
-		let value = this.store.get(key) as AllowedType;
+		let value = this.store.get(key);
 
 		if (value === undefined) {
 			return [`key: ${key} not found`, "KEYERROR"];
@@ -191,6 +199,45 @@ export class Redis implements IRedis {
 
 	handleCommand(): [string, null] {
 		return ["OK", null];
+	}
+
+	handleSADD(args: AllowedType[]): [number | string, string | null] {
+		if (args.length < 2) {
+			return ["wrong number of arguments for 'SADD' command", "ERR"];
+		}
+
+		let key = args[0];
+
+		let value = this.store.get(key) as AllowedType;
+
+		if (value === undefined) {
+			this.store.set(key, new Set([args[1]]));
+
+			return [1, null];
+		}
+
+		if (value instanceof Set) {
+			value.add(args[1]);
+			this.store.set(key, value);
+
+			return [1, null];
+		}
+
+		return [`Invalid operation on type: ${typeof value}`, "WRONGTYPE"];
+	}
+
+	handleSMEMBERS(key: AllowedType): [AllowedType, string | null] {
+		let value = this.store.get(key) as AllowedType;
+
+		if (value === undefined) {
+			return [`key: ${key} not found`, "KEYERROR"];
+		}
+
+		if (value instanceof Set) {
+			return [value, null];
+		} else {
+			return [`Invalid operation on type: ${typeof value}`, "WRONGTYPE"];
+		}
 	}
 
 	handleSave(): [string, null] {
