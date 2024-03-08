@@ -68,3 +68,7 @@ Part of my attempt at John Crickett's ![Coding Chanllenges](https://codingchalle
 -   `SMEMBER`: Displays elements of a set.
 -   `RPUSH`: Add an element to the right end of a list.
 -   `SAVE`: Save the dataset to disk.
+
+## Basic example
+
+<img width="589" alt="Screenshot 2024-03-08 at 8 54 31 PM" src="https://github.com/Fuad28/redis-server/assets/63596779/eb11a22c-11ba-4293-b10a-66a1ade3b870">
