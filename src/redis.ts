@@ -14,12 +14,12 @@ export class Redis implements IRedis {
 
 	start() {
 		const server = createServer(async (socket) => {
-			console.log("client connected");
+			console.log("client connected\n");
 
 			await this.loadStoreFromDisk();
 
 			socket.on("data", (data) => {
-				console.log("Received: ", JSON.stringify(data.toString()));
+				console.log("Received: ", JSON.stringify(data.toString()), "\n");
 
 				this.handleMessage(data.toString())
 					.then((value) => {
@@ -31,11 +31,12 @@ export class Redis implements IRedis {
 			});
 
 			socket.on("end", () => {
-				console.log("client disconnected");
+				this.handleSave();
+				console.log("client disconnected\n");
 			});
 
 			socket.on("error", (err: Error) => {
-				console.log("Error: ", err);
+				console.log("Error: ", err, "\n");
 			});
 		});
 
@@ -43,8 +44,13 @@ export class Redis implements IRedis {
 			throw err;
 		});
 
+		server.on("close", () => {
+			this.handleSave();
+			console.log("server shutting down...\n");
+		});
+
 		server.listen(this.port, () => {
-			console.log("server listening on port ", this.port);
+			console.log("server listening on port ", this.port, "\n");
 		});
 	}
 
