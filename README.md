@@ -1,11 +1,11 @@
-A redis erver implementation in Typescript from [John Cricket coding challenges](https://codingchallenges.fyi/challenges/challenge-redis)
+A Redis server implementation in Typescript from [John Cricket coding challenges](https://codingchallenges.fyi/challenges/challenge-redis)
 
 # Redis Server implementation in Typescript
 
 ![ts](https://badgen.net/badge/Built%20With/TypeScript/blue)
 
 A simple implementation of a Redis server written in TypeScript.
-Part of my attempt of John Crickett's ![Coding Chanllenges](https://codingchallenges.fyi/challenges/challenge-redis)
+Part of my attempt at John Crickett's ![Coding Chanllenges](https://codingchallenges.fyi/challenges/challenge-redis)
 
 ## Features
 
@@ -14,7 +14,7 @@ Part of my attempt of John Crickett's ![Coding Chanllenges](https://codingchalle
 -   Support for common Redis commands.
 -   Autosave upon client disconnection or server shutdown.
 -   Loads DB for disk on startup.
--   Asynchronous implemention.
+-   Asynchronous implementation.
 -   Easy to use and extend.
 
 ## Installation
@@ -54,7 +54,7 @@ Part of my attempt of John Crickett's ![Coding Chanllenges](https://codingchalle
 -   `PING`: Ping the server.
 -   `ECHO`: Echo the input string.
 -   `KEYS`: Returns all key names.
--   `LEN`: Returns total number of keys stored.
+-   `LEN`: Returns the total number of keys stored.
 -   `ECHO`: Echo the input string.
 -   `GET`: Get the value of a key.
 -   `SET`: Set the value of a key.
