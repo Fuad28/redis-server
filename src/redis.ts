@@ -216,7 +216,7 @@ export class Redis implements IRedis {
 
 		let key = args[0];
 
-		let value = this.store.get(key) as AllowedType;
+		let value = this.store.get(key);
 
 		if (value === undefined) {
 			this.store.set(key, new Set([args[1]]));
@@ -235,7 +235,7 @@ export class Redis implements IRedis {
 	}
 
 	handleSMEMBERS(key: AllowedType): [AllowedType, string | null] {
-		let value = this.store.get(key) as AllowedType;
+		let value = this.store.get(key);
 
 		if (value === undefined) {
 			return [`key: ${key} not found`, "KEYERROR"];
