@@ -33,7 +33,7 @@ export interface IRedis {
 	handleEcho(args: AllowedType[]): [string, null];
 	handleDel(key: AllowedType): [number, null];
 	handleDecr(key: AllowedType): [number | string, string | null];
-	handleSave(): [string, string | null];
+	handleSave(): [string, null];
 	saveStoreToDisk(): Promise<void>;
 	loadStoreFromDisk(): Promise<void>;
 }

@@ -181,22 +181,18 @@ export class Redis implements IRedis {
 		return ["OK", null];
 	}
 
-	handleSave(): [string, string | null] {
-		let response = "OK";
-		let errorPrefix = null;
-
+	handleSave(): [string, null] {
 		this.saveStoreToDisk()
 			.then((value) => {
-				[response, errorPrefix] = ["OK", null];
+				let timeNow = new Date().toLocaleString();
+				console.log(timeNow, ": DB saved to disk");
 			})
 			.catch((error) => {
-				const err = error as CustomErrorType;
-				[response, errorPrefix] = [err.message, "ERR"];
-
-				console.warn("Error saving to disk: ", error.message);
+				let timeNow = new Date().toLocaleString();
+				console.warn(timeNow, ": Error saving to disk: ", error.message);
 			});
 
-		return [response, errorPrefix];
+		return ["OK", null];
 	}
 
 	async saveStoreToDisk(): Promise<void> {
