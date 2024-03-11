@@ -37,8 +37,16 @@ Part of my attempt at John Crickett's ![Coding Chanllenges](https://codingchalle
 
 1. Run the Redis server:
 
+    - option 1 : run server on default port 6379
+
     ```bash
     npm start
+    ```
+
+    - option 2 : specify a port to run server on.
+
+    ```bash
+     tsc && node dist/index.js -p 5000
     ```
 
 2. The server begins to run on localhost port 6379. You can then interact with the server using redis-cli
