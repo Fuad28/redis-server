@@ -1,5 +1,8 @@
 import { Redis } from "./redis";
+import { getPort } from "./utils";
 
-let redis = new Redis();
+let port = getPort();
 
-redis.start();
+if (port) {
+	new Redis(port).start();
+}
