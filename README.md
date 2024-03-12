@@ -5,12 +5,12 @@ A Redis server implementation in Typescript from [John Cricket coding challenges
 ![ts](https://badgen.net/badge/Built%20With/TypeScript/blue)
 
 A simple implementation of a Redis server written in TypeScript.
-Part of my attempt at John Crickett's ![Coding Chanllenges](https://codingchallenges.fyi/challenges/challenge-redis)
+Part of my attempt at John Crickett's [Coding Chanllenges](https://codingchallenges.fyi/challenges/challenge-redis)
 
 ## Features
 
 -   Basic implementation of Redis server functionality.
--   Support for the ![RESP2](https://redis.io/docs/reference/protocol-spec/) protocol.
+-   Support for the [RESP2](https://redis.io/docs/reference/protocol-spec/) protocol.
 -   Support for common Redis commands.
 -   Autosave upon client disconnection or server shutdown.
 -   Loads DB for disk on startup.
