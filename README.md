@@ -5,7 +5,7 @@ A Redis server implementation in Typescript from [John Cricket coding challenges
 ![ts](https://badgen.net/badge/Built%20With/TypeScript/blue)
 
 A simple implementation of a Redis server written in TypeScript.
-Part of my attempt at John Crickett's [Coding Chanllenges](https://codingchallenges.fyi/challenges/challenge-redis)
+Part of my attempt at John Crickett's [Coding Challenges](https://codingchallenges.fyi/challenges/challenge-redis)
 
 ## Features
 
